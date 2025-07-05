@@ -1,0 +1,53 @@
+services:
+  geth:
+    image: ethereum/client-go:stable
+    container_name: geth-sepolia
+    restart: unless-stopped
+    ports:
+      - 8545:8545
+      - 8551:8551
+      - 30303:30303
+      - 30303:30303/udp
+    volumes:
+      - ./geth-data-sepolia:/root/.ethereum
+    command:
+      - --sepolia
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.api=eth,net,web3,personal
+      - --beacon.api
+      - --syncmode=fast
+      - --cache=512
+      - --http.corsdomain=*
+      - --http.vhosts=*
+      - --verbosity=3
+    networks:
+      - aztec-network
+
+  aztec:
+    image: aztecprotocol/aztec:latest
+    container_name: aztec
+    restart: unless-stopped
+    depends_on:
+      - geth
+    environment:
+      ETHEREUM_HOSTS: "http://geth:8545"
+      L1_CONSENSUS_HOST_URLS: "http://geth:8551"
+      DATA_DIRECTORY: /data
+      VALIDATOR_PRIVATE_KEY: ${VALIDATOR_PRIVATE_KEY}
+      P2P_IP: ${P2P_IP}
+      LOG_LEVEL: debug
+    entrypoint: ["/wait-for-sync.sh"]
+    ports:
+      - 40400:40400/tcp
+      - 40400:40400/udp
+      - 8080:8080
+    volumes:
+      - ./aztec-data:/data
+      - ./wait-for-sync.sh:/wait-for-sync.sh
+    networks:
+      - aztec-network
+
+networks:
+  aztec-network:
+    driver: bridge
