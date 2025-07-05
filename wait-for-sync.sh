@@ -31,7 +31,7 @@ done
 echo "Waiting for Prysm beacon node to be ready..."
 
 # Wait for Prysm beacon HTTP server to be ready
-until curl -s -f http://prysm-beacon:3500 > /dev/null 2>&1; do
+until curl -s -f http://prysm-beacon:3500/eth/v1/node/health > /dev/null 2>&1; do
     echo "Waiting for Prysm beacon HTTP server..."
     sleep 5
 done
