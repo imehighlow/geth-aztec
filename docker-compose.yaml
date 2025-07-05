@@ -39,9 +39,8 @@ services:
     volumes:
       - ./prysm-beacon-data:/data
     command:
-      - beacon-chain
       - --datadir=/data
-      - --http-web3provider=http://geth:8545
+      - --execution-endpoint=http://geth:8545
       - --accept-terms-of-use
       - --http-host=0.0.0.0
       - --p2p-host-ip=0.0.0.0
