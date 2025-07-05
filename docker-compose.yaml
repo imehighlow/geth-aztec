@@ -4,8 +4,8 @@ services:
     container_name: geth-sepolia
     restart: unless-stopped
     ports:
-      - 8545:8545      # HTTP JSON-RPC
-      - 8551:8551      # AuthRPC / Engine API
+      - 8545:8545 # HTTP JSON-RPC
+      - 8551:8551 # AuthRPC / Engine API
       - 30303:30303
       - 30303:30303/udp
     volumes:
@@ -34,17 +34,23 @@ services:
     depends_on:
       - geth
     ports:
-      - 4000:4000      # libp2p
-      - 3500:3500      # HTTP API (optional)
+      - 4000:4000 # libp2p
+      - 3500:3500 # HTTP API (optional)
     volumes:
       - ./prysm-beacon-data:/data
-    command:
-      - --datadir=/data
-      - --execution-endpoint=http://geth:8545
-      - --accept-terms-of-use
-      - --http-host=0.0.0.0
-      - --p2p-host-ip=0.0.0.0
-      - --network=sepolia
+    command: |
+      --sepolia
+      --checkpoint-sync-url=https://beaconstate-sepolia.chainsafe.io/
+      --genesis-beacon-api-url=https://beaconstate-sepolia.chainsafe.io/
+      --execution-endpoint=http://geth:8551
+      --jwt-secret=/opt/jwt/jwt.hex
+      --datadir=/opt/app/beacon/
+      --rpc-host=0.0.0.0
+      --grpc-gateway-host=0.0.0.0
+      --http-modules=beacon,config,node,validator
+      --monitoring-host=0.0.0.0
+      --monitoring-port=5054
+      --accept-terms-of-use=true
     networks:
       - eth-net
 
