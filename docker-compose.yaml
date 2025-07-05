@@ -38,6 +38,7 @@ services:
       - 3500:3500 # HTTP API (optional)
     volumes:
       - ./prysm-beacon-data:/data
+      - ./jwt.hex:/opt/jwt/jwt.hex
     command: |
       --sepolia
       --checkpoint-sync-url=https://beaconstate-sepolia.chainsafe.io/
