@@ -10,6 +10,7 @@ services:
       - 30303:30303/udp
     volumes:
       - ./geth-data:/root/.ethereum
+      - ./jwt.hex:/opt/jwt/jwt.hex
     command:
       - --sepolia
       - --http
@@ -21,6 +22,7 @@ services:
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
       - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/opt/jwt/jwt.hex
       - --ipcpath=/root/.ethereum/geth.ipc
       - --syncmode=snap
       - --cache=512
