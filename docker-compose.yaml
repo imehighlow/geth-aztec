@@ -17,7 +17,7 @@ services:
       - --http.api=eth,net,web3,personal
       - --beacon.api
       - --beacon.addr=0.0.0.0
-      - --syncmode=fast
+      - --syncmode=snap
       - --cache=512
       - --http.corsdomain=*
       - --http.vhosts=*
