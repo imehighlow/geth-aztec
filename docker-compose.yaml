@@ -44,7 +44,7 @@ services:
       - --accept-terms-of-use
       - --http-host=0.0.0.0
       - --p2p-host-ip=0.0.0.0
-      - --chain=sepolia
+      - --network=sepolia
     networks:
       - eth-net
 
