@@ -4,26 +4,50 @@ services:
     container_name: geth-sepolia
     restart: unless-stopped
     ports:
-      - 8545:8545
-      - 8551:8551
+      - 8545:8545      # HTTP JSON-RPC
+      - 8551:8551      # AuthRPC / Engine API
       - 30303:30303
       - 30303:30303/udp
     volumes:
-      - ./geth-data-sepolia:/root/.ethereum
+      - ./geth-data:/root/.ethereum
     command:
       - --sepolia
       - --http
       - --http.addr=0.0.0.0
-      - --http.api=eth,net,web3,personal
-      - --beacon.api
-      - --beacon.addr=0.0.0.0
-      - --syncmode=snap
-      - --cache=512
+      - --http.port=8545
+      - --http.api=eth,net,web3,personal,engine
       - --http.corsdomain=*
       - --http.vhosts=*
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --syncmode=snap
+      - --cache=512
       - --verbosity=3
     networks:
-      - aztec-network
+      - eth-net
+
+  prysm-beacon:
+    image: gcr.io/prysmaticlabs/prysm/beacon-chain:latest
+    container_name: prysm-beacon
+    restart: unless-stopped
+    depends_on:
+      - geth
+    ports:
+      - 4000:4000      # libp2p
+      - 3500:3500      # HTTP API (optional)
+    volumes:
+      - ./prysm-beacon-data:/data
+    command:
+      - beacon-chain
+      - --datadir=/data
+      - --http-web3provider=http://geth:8545
+      - --accept-terms-of-use
+      - --http-host=0.0.0.0
+      - --p2p-host-ip=0.0.0.0
+      - --chain=sepolia
+    networks:
+      - eth-net
 
   aztec:
     image: aztecprotocol/aztec:latest
@@ -31,9 +55,10 @@ services:
     restart: unless-stopped
     depends_on:
       - geth
+      - prysm-beacon
     environment:
       ETHEREUM_HOSTS: "http://geth:8545"
-      L1_CONSENSUS_HOST_URLS: "http://geth:8551"
+      L1_CONSENSUS_HOST_URLS: "http://prysm-beacon:3500"
       DATA_DIRECTORY: /data
       VALIDATOR_PRIVATE_KEY: ${VALIDATOR_PRIVATE_KEY}
       P2P_IP: ${P2P_IP}
@@ -47,8 +72,8 @@ services:
       - ./aztec-data:/data
       - ./wait-for-sync.sh:/wait-for-sync.sh
     networks:
-      - aztec-network
+      - eth-net
 
 networks:
-  aztec-network:
+  eth-net:
     driver: bridge
