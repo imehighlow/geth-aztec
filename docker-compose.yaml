@@ -21,6 +21,7 @@ services:
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
       - --authrpc.vhosts=*
+      - --ipcpath=/root/.ethereum/geth.ipc
       - --syncmode=snap
       - --cache=512
       - --verbosity=3
@@ -39,6 +40,7 @@ services:
     volumes:
       - ./prysm-beacon-data:/data
       - ./jwt.hex:/opt/jwt/jwt.hex
+      - ./geth-data:/root/.ethereum
     command: |
       --sepolia
       --checkpoint-sync-url=https://beaconstate-sepolia.chainsafe.io/
